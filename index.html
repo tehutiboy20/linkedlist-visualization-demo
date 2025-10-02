@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedList Interactive Visualization</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100px;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        button.remove {
+            background: #f44336;
+        }
+
+        button.remove:hover {
+            background: #d32f2f;
+        }
+
+        button.search {
+            background: #2196F3;
+        }
+
+        button.search:hover {
+            background: #1976D2;
+        }
+
+        .visualization {
+            min-height: 200px;
+            border: 3px solid #333;
+            border-radius: 15px;
+            padding: 30px;
+            background: #f9f9f9;
+            margin-bottom: 30px;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .node {
+            display: inline-flex;
+            align-items: center;
+            margin: 10px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .node-box {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .arrow {
+            font-size: 24px;
+            color: #333;
+            margin: 0 10px;
+            font-weight: bold;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -30px;
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .head-pointer {
+            background: #4CAF50;
+        }
+
+        .tail-pointer {
+            background: #f44336;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+            font-style: italic;
+            margin: 50px 0;
+        }
+
+        .explanation {
+            background: #e3f2fd;
+            border-left: 5px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .explanation h3 {
+            margin-top: 0;
+            color: #1976D2;
+        }
+
+        .operation-log {
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .highlight {
+            animation: highlight 1s ease-out;
+        }
+
+        @keyframes highlight {
+            0% { background-color: #ffeb3b; }
+            100% { background-color: transparent; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 LinkedList Interactive Visualization</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <input type="text" id="valueInput" placeholder="Enter value" />
+                <button onclick="pushValue()">Push (Add to End)</button>
+                <button onclick="addToHead()">Add to Head</button>
+            </div>
+            
+            <div class="control-group">
+                <input type="text" id="searchInput" placeholder="Search value" />
+                <button class="search" onclick="searchValue()">Contains?</button>
+            </div>
+            
+            <div class="control-group">
+                <input type="number" id="positionInput" placeholder="Position" />
+                <button onclick="insertAtPosition()">Insert at Position</button>
+                <button class="remove" onclick="removeAtPosition()">Remove at Position</button>
+            </div>
+            
+            <div class="control-group">
+                <input type="text" id="removeValueInput" placeholder="Value to remove" />
+                <button class="remove" onclick="removeValue()">Remove Value</button>
+                <button class="remove" onclick="clearList()">Clear All</button>
+            </div>
+        </div>
+
+        <div class="visualization" id="visualization">
+            <div class="empty-message">LinkedList is empty - add some values!</div>
+        </div>
+
+        <div class="explanation">
+            <h3>🧠 How LinkedList Works:</h3>
+            <p><strong>Nodes:</strong> Each box contains data and points to the next box</p>
+            <p><strong>Head:</strong> Green pointer to the first node</p>
+            <p><strong>Tail:</strong> Red pointer to the last node</p>
+            <p><strong>Arrows:</strong> Show the connection between nodes (next pointers)</p>
+        </div>
+
+        <div class="operation-log" id="operationLog">
+            <strong>Operation Log:</strong><br>
+            <div id="logEntries">Ready to start! Try adding some values.</div>
+        </div>
+    </div>
+
+    <script>
+        // Simple LinkedList implementation for visualization
+        class ListNode {
+            constructor(value) {
+                this.value = value;
+                this.next = null;
+            }
+        }
+
+        class LinkedList {
+            constructor() {
+                this.head = null;
+                this.tail = null;
+            }
+
+            push(value) {
+                const newNode = new ListNode(value);
+                if (!this.head) {
+                    this.head = newNode;
+                    this.tail = newNode;
+                } else {
+                    this.tail.next = newNode;
+                    this.tail = newNode;
+                }
+            }
+
+            addToHead(value) {
+                const newNode = new ListNode(value);
+                if (!this.head) {
+                    this.head = newNode;
+                    this.tail = newNode;
+                } else {
+                    newNode.next = this.head;
+                    this.head = newNode;
+                }
+            }
+
+            contains(value) {
+                let current = this.head;
+                while (current) {
+                    if (current.value == value) return true;
+                    current = current.next;
+                }
+                return false;
+            }
+
+            insert(value, position) {
+                if (position === 0) {
+                    this.addToHead(value);
+                    return true;
+                }
+
+                const newNode = new ListNode(value);
+                let current = this.head;
+                for (let i = 0; i < position - 1 && current; i++) {
+                    current = current.next;
+                }
+
+                if (!current) return false;
+
+                newNode.next = current.next;
+                current.next = newNode;
+                if (!newNode.next) this.tail = newNode;
+                return true;
+            }
+
+            removeValue(value) {
+                if (!this.head) return false;
+
+                if (this.head.value == value) {
+                    this.head = this.head.next;
+                    if (!this.head) this.tail = null;
+                    return true;
+                }
+
+                let current = this.head;
+                while (current.next) {
+                    if (current.next.value == value) {
+                        const nodeToRemove = current.next;
+                        current.next = nodeToRemove.next;
+                        if (nodeToRemove === this.tail) this.tail = current;
+                        return true;
+                    }
+                    current = current.next;
+                }
+                return false;
+            }
+
+            removeAtPosition(position) {
+                if (!this.head || position < 0) return null;
+
+                if (position === 0) {
+                    const value = this.head.value;
+                    this.head = this.head.next;
+                    if (!this.head) this.tail = null;
+                    return value;
+                }
+
+                let current = this.head;
+                for (let i = 0; i < position - 1 && current.next; i++) {
+                    current = current.next;
+                }
+
+                if (!current.next) return null;
+
+                const nodeToRemove = current.next;
+                const value = nodeToRemove.value;
+                current.next = nodeToRemove.next;
+                if (nodeToRemove === this.tail) this.tail = current;
+                return value;
+            }
+
+            clear() {
+                this.head = null;
+                this.tail = null;
+            }
+        }
+
+        // Global list instance
+        const list = new LinkedList();
+
+        function logOperation(operation) {
+            const logEntries = document.getElementById('logEntries');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `[${timestamp}] ${operation}`;
+            logEntries.appendChild(entry);
+            logEntries.scrollTop = logEntries.scrollHeight;
+        }
+
+        function renderList() {
+            const viz = document.getElementById('visualization');
+            viz.innerHTML = '';
+
+            if (!list.head) {
+                viz.innerHTML = '<div class="empty-message">LinkedList is empty - add some values!</div>';
+                return;
+            }
+
+            let current = list.head;
+            let position = 0;
+
+            while (current) {
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = 'node';
+                nodeDiv.style.position = 'relative';
+
+                // Add head pointer
+                if (current === list.head) {
+                    const headPointer = document.createElement('div');
+                    headPointer.className = 'pointer head-pointer';
+                    headPointer.textContent = 'HEAD';
+                    nodeDiv.appendChild(headPointer);
+                }
+
+                // Add tail pointer
+                if (current === list.tail) {
+                    const tailPointer = document.createElement('div');
+                    tailPointer.className = 'pointer tail-pointer';
+                    tailPointer.textContent = 'TAIL';
+                    tailPointer.style.top = '70px';
+                    nodeDiv.appendChild(tailPointer);
+                }
+
+                // Create node box
+                const nodeBox = document.createElement('div');
+                nodeBox.className = 'node-box';
+                nodeBox.textContent = current.value;
+                nodeDiv.appendChild(nodeBox);
+
+                // Add arrow if not last node
+                if (current.next) {
+                    const arrow = document.createElement('span');
+                    arrow.className = 'arrow';
+                    arrow.innerHTML = '→';
+                    nodeDiv.appendChild(arrow);
+                } else {
+                    const nullText = document.createElement('span');
+                    nullText.className = 'arrow';
+                    nullText.innerHTML = '→ null';
+                    nullText.style.color = '#999';
+                    nodeDiv.appendChild(nullText);
+                }
+
+                viz.appendChild(nodeDiv);
+                current = current.next;
+                position++;
+            }
+        }
+
+        function pushValue() {
+            const input = document.getElementById('valueInput');
+            const value = input.value.trim();
+            if (!value) return;
+
+            list.push(value);
+            logOperation(`Pushed "${value}" to end of list`);
+            input.value = '';
+            renderList();
+        }
+
+        function addToHead() {
+            const input = document.getElementById('valueInput');
+            const value = input.value.trim();
+            if (!value) return;
+
+            list.addToHead(value);
+            logOperation(`Added "${value}" to head of list`);
+            input.value = '';
+            renderList();
+        }
+
+        function searchValue() {
+            const input = document.getElementById('searchInput');
+            const value = input.value.trim();
+            if (!value) return;
+
+            const found = list.contains(value);
+            logOperation(`Searched for "${value}": ${found ? 'FOUND' : 'NOT FOUND'}`);
+            
+            // Highlight nodes temporarily if found
+            if (found) {
+                const nodes = document.querySelectorAll('.node-box');
+                nodes.forEach(node => {
+                    if (node.textContent === value) {
+                        node.classList.add('highlight');
+                        setTimeout(() => node.classList.remove('highlight'), 1000);
+                    }
+                });
+            }
+        }
+
+        function insertAtPosition() {
+            const valueInput = document.getElementById('valueInput');
+            const positionInput = document.getElementById('positionInput');
+            const value = valueInput.value.trim();
+            const position = parseInt(positionInput.value);
+
+            if (!value || isNaN(position) || position < 0) return;
+
+            const success = list.insert(value, position);
+            if (success) {
+                logOperation(`Inserted "${value}" at position ${position}`);
+                valueInput.value = '';
+                positionInput.value = '';
+                renderList();
+            } else {
+                logOperation(`Failed to insert at position ${position} (invalid position)`);
+            }
+        }
+
+        function removeAtPosition() {
+            const positionInput = document.getElementById('positionInput');
+            const position = parseInt(positionInput.value);
+
+            if (isNaN(position) || position < 0) return;
+
+            const removedValue = list.removeAtPosition(position);
+            if (removedValue !== null) {
+                logOperation(`Removed "${removedValue}" from position ${position}`);
+                positionInput.value = '';
+                renderList();
+            } else {
+                logOperation(`Failed to remove at position ${position} (invalid position)`);
+            }
+        }
+
+        function removeValue() {
+            const input = document.getElementById('removeValueInput');
+            const value = input.value.trim();
+            if (!value) return;
+
+            const success = list.removeValue(value);
+            if (success) {
+                logOperation(`Removed first occurrence of "${value}"`);
+                input.value = '';
+                renderList();
+            } else {
+                logOperation(`Value "${value}" not found in list`);
+            }
+        }
+
+        function clearList() {
+            list.clear();
+            logOperation('Cleared entire list');
+            renderList();
+        }
+
+        // Initialize
+        renderList();
+    </script>
+</body>
+</html>
