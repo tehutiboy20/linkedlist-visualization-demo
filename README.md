@@ -12,14 +12,14 @@ An interactive, visual demonstration of the LinkedList data structure with a com
 
 ## 🔥 Live Demo
 
-**[👉 Try the Interactive Demo Here!](https://yourusername.github.io/linkedlist-visualization-demo/)**
+**[👉 Try the Interactive Demo Here!](https://tehutiboy20.github.io/linkedlist-visualization-demo/)**
 
 ## 📋 Quick Start
 
 ### Option 1: View Locally
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/linkedlist-visualization-demo.git
+git clone https://github.com/tehutiboy20/linkedlist-visualization-demo.git
 cd linkedlist-visualization-demo
 
 # Open index.html in your browser
@@ -138,7 +138,7 @@ This project is configured for easy deployment to GitHub Pages:
 1. Push to GitHub
 2. Go to Settings → Pages
 3. Select "Deploy from main branch"
-4. Your demo will be live at: `https://yourusername.github.io/linkedlist-visualization-demo/`
+4. Your demo will be live at: `https://tehutiboy20.github.io/linkedlist-visualization-demo/`
 
 ---
 

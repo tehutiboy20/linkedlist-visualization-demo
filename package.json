@@ -29,10 +29,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/linkedlist-visualization-demo.git"
+    "url": "https://github.com/tehutiboy20/linkedlist-visualization-demo.git"
   },
-  "homepage": "https://yourusername.github.io/linkedlist-visualization-demo/",
+  "homepage": "https://tehutiboy20.github.io/linkedlist-visualization-demo/",
   "bugs": {
-    "url": "https://github.com/yourusername/linkedlist-visualization-demo/issues"
+    "url": "https://github.com/tehutiboy20/linkedlist-visualization-demo/issues"
   }
 }
